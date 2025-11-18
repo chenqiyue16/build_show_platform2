@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Bundle资源分析 - {{ info_id }}</title>
+    <meta name="description" content="Unity Bundle资源分析平台">
+    <meta name="author" content="Unity Bundle Analysis">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0">
+
+    <!-- Web fonts -->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400italic,600,700%7COpen+Sans:300,400,400italic,600,700">
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="/static/assets/js/plugins/datatables/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/static/assets/css/oneui.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Chart Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <style>
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab-pane {
+            padding: 20px 0;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .dimension-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .progress-thin {
+            height: 6px;
+            margin-top: 5px;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #ffeaa7;
+            color: #d63031;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .debug-info {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Container -->
+    <div class="content">
+        <!-- Debug Panel (可以隐藏) -->
+        <div class="debug-info" id="debugPanel" style="display: none;">
+            <h6>调试信息</h6>
+            <div id="debugContent"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="block">
+            <div class="block-content bg-primary-dark text-center">
+                <h1 class="h2 text-white mb-2">
+                    <i class="bi bi-graph-up"></i> Bundle资源分析平台
+                </h1>
+                <h2 class="h4 text-white-op">{{ info_id }}</h2>
+                <button class="btn btn-sm btn-warning mt-2" onclick="toggleDebug()">调试模式</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Tabs Navigation -->
+                <div class="block">
+                    <div class="block-content">
+                        <ul class="nav nav-tabs nav-tabs-alt" data-toggle="tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#btabs-bundle">
+                                    <i class="bi bi-archive"></i> Bundle分析
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#btabs-shader">
+                                    <i class="bi bi-gpu-card"></i> Shader变体
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#btabs-dlc">
+                                    <i class="bi bi-collection"></i> DLC管理
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div class="block-content tab-content overflow-hidden">
+                            <!-- Bundle Analysis Tab -->
+                            <div class="tab-pane fade show active" id="btabs-bundle">
+                                <!-- Statistics Cards -->
+                                <div class="row">
+                                    <div class="col-6 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-folder"></i> 总Bundle数量</h3>
+                                            <div class="value" id="totalBundles">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-hdd"></i> 总大小</h3>
+                                            <div class="value" id="totalSize">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-file-earmark"></i> 资源文件数</h3>
+                                            <div class="value" id="totalAssets">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-diagram-3"></i> 分组类型</h3>
+                                            <div class="value" id="groupTypes">加载中...</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bundle Distribution Charts -->
+                                <div class="row">
+                                    <div class="col-12 col-lg-6">
+                                        <div class="chart-container">
+                                            <h4><i class="bi bi-pie-chart"></i> Bundle大小分布</h4>
+                                            <div id="sizeDistributionChart" style="height: 400px;">
+                                                <div class="loading-spinner">
+                                                    <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <div class="chart-container">
+                                            <h4><i class="bi bi-bar-chart"></i> Bundle数量分布</h4>
+                                            <div id="countDistributionChart" style="height: 400px;">
+                                                <div class="loading-spinner">
+                                                    <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 模拟数据测试区域 -->
+                                <div class="chart-container">
+                                    <h4><i class="bi bi-bug"></i> 数据测试</h4>
+                                    <button class="btn btn-info mb-3" onclick="loadSampleData()">加载示例数据</button>
+                                    <div id="sampleDataArea"></div>
+                                </div>
+
+                                <!-- Search Section -->
+                                <div class="search-section">
+                                    <h4><i class="bi bi-search"></i> 资源搜索</h4>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="resourceSearch"
+                                               placeholder="输入bundle名称、文件路径或hashcode...">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchResources()">
+                                                <i class="bi bi-search"></i> 搜索
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="dimension-badge">Bundle名称</span>
+                                        <span class="dimension-badge">文件路径</span>
+                                        <span class="dimension-badge">HashCode</span>
+                                        <span class="dimension-badge">资源类型</span>
+                                    </div>
+                                </div>
+
+                                <!-- Search Results -->
+                                <div class="chart-container">
+                                    <h4><i class="bi bi-list-ul"></i> 搜索结果</h4>
+                                    <div id="searchResults" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="text-center text-muted p-4">
+                                            <i class="bi bi-inbox" style="font-size: 48px;"></i>
+                                            <p>输入搜索条件查看结果</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shader Variants Tab -->
+                            <div class="tab-pane fade" id="btabs-shader">
+                                <div class="row">
+                                    <div class="col-12 col-md-4">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-shuffle"></i> Shader变体总数</h3>
+                                            <div class="value" id="totalVariants">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-code-slash"></i> Shader数量</h3>
+                                            <div class="value" id="totalShaders">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-calculator"></i> 平均变体数</h3>
+                                            <div class="value" id="avgVariants">加载中...</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chart-container">
+                                    <h4><i class="bi bi-bar-chart-line"></i> Shader变体分布</h4>
+                                    <div id="shaderVariantsChart" style="height: 400px;">
+                                        <div class="loading-spinner">
+                                            <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="data-table">
+                                    <table id="shaderTable" class="table table-striped table-hover">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Shader路径</th>
+                                                <th>变体数量</th>
+                                                <th>占比</th>
+                                                <th>状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shaderTableBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <div class="loading-spinner">
+                                                        <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- DLC Management Tab -->
+                            <div class="tab-pane fade" id="btabs-dlc">
+                                <div class="row">
+                                    <div class="col-12 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-collection"></i> DLC总数</h3>
+                                            <div class="value" id="totalDLCs">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-check-circle"></i> 游戏中DLC</h3>
+                                            <div class="value" id="inGameDLCs">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-puzzle"></i> 关联资源</h3>
+                                            <div class="value" id="relatedAssets">加载中...</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="stat-card hover-card">
+                                            <h3><i class="bi bi-tags"></i> 标签数量</h3>
+                                            <div class="value" id="totalLabels">加载中...</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chart-container">
+                                    <h4><i class="bi bi-diagram-3"></i> DLC信息表</h4>
+                                    <div class="table-responsive">
+                                        <table id="dlcInfosTable" class="table table-striped table-hover">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>DLC ID</th>
+                                                    <th>名称</th>
+                                                    <th>关联ID</th>
+                                                    <th>关联标签</th>
+                                                    <th>游戏状态</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dlcInfosTableBody">
+                                                <tr>
+                                                    <td colspan="5" class="text-center">
+                                                        <div class="loading-spinner">
+                                                            <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="chart-container">
+                                    <h4><i class="bi bi-map"></i> DLC设计映射</h4>
+                                    <div class="table-responsive">
+                                        <table id="dlcDesignMapTable" class="table table-striped table-hover">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>路径</th>
+                                                    <th>数量</th>
+                                                    <th>类型</th>
+                                                    <th>状态</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="designMapTableBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center">
+                                                        <div class="loading-spinner">
+                                                            <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="/static/assets/js/core/jquery.min.js"></script>
+    <script src="/static/assets/js/core/bootstrap.min.js"></script>
+    <script src="/static/assets/js/core/jquery.slimscroll.min.js"></script>
+    <script src="/static/assets/js/core/jquery.scrollLock.min.js"></script>
+    <script src="/static/assets/js/core/jquery.appear.min.js"></script>
+    <script src="/static/assets/js/core/jquery.countTo.min.js"></script>
+    <script src="/static/assets/js/core/jquery.placeholder.min.js"></script>
+    <script src="/static/assets/js/core/js.cookie.min.js"></script>
+    <script src="/static/assets/js/app.js"></script>
+
+    <script>
+        // 调试信息
+        console.log("页面加载完成");
+        console.log("info_id:", "{{ info_id }}");
+
+        // 全局变量
+        let bundleData = null;
+        let shaderData = null;
+        let dlcData = null;
+
+        // 测试API连接
+        async function testAPIs() {
+            console.log("开始测试API连接...");
+            const debugContent = document.getElementById('debugContent');
+            let debugHtml = '<div>API测试结果:</div>';
+
+            const apis = [
+                '/BuildWeb/get_bundle_group_bundles_size_and_count',
+                '/BuildWeb/get_shader_variants_count_info_json',
+                '/BuildWeb/get_dlc_infos_count_json',
+                '/BuildWeb/get_dlc_design_map_infos_count_json'
+            ];
+
+            for (const api of apis) {
+                try {
+                    console.log(`测试API: ${api}`);
+                    debugHtml += `<div>测试: ${api} ... </div>`;
+
+                    const response = await fetch(api);
+                    const statusText = `${response.status} ${response.statusText}`;
+                    console.log(`${api} 状态:`, statusText);
+                    debugHtml += `<div>状态: ${statusText}</div>`;
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(`${api} 返回数据:`, data);
+                        debugHtml += `<div>数据: ${JSON.stringify(data).substring(0, 200)}...</div>`;
+                    } else {
+                        console.error(`${api} 请求失败:`, response.status);
+                        debugHtml += `<div style="color: red;">请求失败: ${response.status}</div>`;
+                    }
+                    debugHtml += '<div>---</div>';
+                } catch (error) {
+                    console.error(`${api} 请求异常:`, error);
+                    debugHtml += `<div style="color: red;">异常: ${error.message}</div>`;
+                    debugHtml += '<div>---</div>';
+                }
+            }
+
+            debugContent.innerHTML = debugHtml;
+        }
+
+        // 切换调试面板
+        function toggleDebug() {
+            const debugPanel = document.getElementById('debugPanel');
+            debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+            if (debugPanel.style.display === 'block') {
+                testAPIs();
+            }
+        }
+
+        // 页面加载完成后初始化
+        $(document).ready(function() {
+            console.log("jQuery ready");
+            initializePage();
+            loadAllData();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            // 绑定搜索事件
+            $('#resourceSearch').on('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchResources();
+                }
+            });
+
+            // 绑定标签切换事件
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                const target = $(e.target).attr("href");
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            });
+        }
+
+        // 加载所有数据
+        async function loadAllData() {
+            try {
+                showLoadingState();
+
+                // 并行加载所有数据
+                await Promise.all([
+                    loadBundleData(),
+                    loadShaderData(),
+                    loadDLCData()
+                ]);
+
+                updateStatistics();
+                createAllCharts();
+                hideLoadingState();
+
+            } catch (error) {
+                console.error('数据加载失败:', error);
+                showError('数据加载失败: ' + error.message);
+                hideLoadingState();
+
+                // 如果真实数据加载失败，显示示例数据
+                showSampleDataOption();
+            }
+        }
+
+        // 加载Bundle数据
+        async function loadBundleData() {
+            try {
+                const response = await fetch('/BuildWeb/get_bundle_group_bundles_size_and_count');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    bundleData = data;
+                } else {
+                    throw new Error(data.error || 'Bundle数据加载失败');
+                }
+            } catch (error) {
+                console.error('Bundle数据加载失败:', error);
+                throw error;
+            }
+        }
+
+        // 加载Shader数据
+        async function loadShaderData() {
+            try {
+                const response = await fetch('/BuildWeb/get_shader_variants_count_info_json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    shaderData = data.shader_variants_count_dict || {};
+                } else {
+                    throw new Error(data.error || 'Shader数据加载失败');
+                }
+            } catch (error) {
+                console.error('Shader数据加载失败:', error);
+                throw error;
+            }
+        }
+
+        // 加载DLC数据
+        async function loadDLCData() {
+            try {
+                const [dlcResponse, designResponse] = await Promise.all([
+                    fetch('/BuildWeb/get_dlc_infos_count_json'),
+                    fetch('/BuildWeb/get_dlc_design_map_infos_count_json')
+                ]);
+
+                if (!dlcResponse.ok || !designResponse.ok) {
+                    throw new Error('DLC数据请求失败');
+                }
+
+                const dlcJson = await dlcResponse.json();
+                const designJson = await designResponse.json();
+
+                dlcData = {
+                    infos: (dlcJson.status === 'success' ? dlcJson.dlc_infos_count_dict : {}) || {},
+                    design: (designJson.status === 'success' ? designJson.dlc_design_data_map_infos_count_dict : {}) || {}
+                };
+
+            } catch (error) {
+                console.error('DLC数据加载失败:', error);
+                throw error;
+            }
+        }
+
+        // 显示示例数据选项
+        function showSampleDataOption() {
+            const sampleArea = document.getElementById('sampleDataArea');
+            sampleArea.innerHTML = `
+                <div class="alert alert-warning">
+                    <h5>真实数据加载失败</h5>
+                    <p>可能的原因：</p>
+                    <ul>
+                        <li>后端API服务未启动</li>
+                        <li>API路径不正确</li>
+                        <li>数据库连接问题</li>
+                        <li>网络连接问题</li>
+                    </ul>
+                    <button class="btn btn-success" onclick="loadSampleData()">加载示例数据查看界面效果</button>
+                </div>
+            `;
+        }
+
+        // 加载示例数据
+        function loadSampleData() {
+            console.log("加载示例数据");
+
+            // 示例Bundle数据
+            bundleData = {
+                all_stats: [
+                    { name: 'Animation', count: 600, total_size: 280410000 },
+                    { name: 'Texture', count: 450, total_size: 520780000 },
+                    { name: 'Model', count: 300, total_size: 380120000 },
+                    { name: 'Shader', count: 150, total_size: 120450000 },
+                    { name: 'Audio', count: 200, total_size: 180340000 },
+                    { name: 'UI', count: 180, total_size: 95080000 }
+                ]
+            };
+
+            // 示例Shader数据
+            shaderData = {
+                "LHMobile/Effect/LHM_FX_Uber_Transparent": 14746,
+                "LHMobile/General/Environment/LHM_Standard_Environment_Prop": 11140,
+                "LHMobile/PostProcessing/LHMUberPost": 8352,
+                "L22Character/Universal/LHM_Standard_Character_Cloth_Advanced_4pd": 8294,
+                "LHMobile/General/Character/LHM_Standard_Character_Cloth_Medium": 7868
+            };
+
+            // 示例DLC数据
+            dlcData = {
+                infos: {
+                    "dlc_001": { id: "dlc_001", dlcName: "春节活动包", RelatedID: ["1001", "1002"], RelatedLabel: "festival", isInGame: true },
+                    "dlc_002": { id: "dlc_002", dlcName: "夏日泳装", RelatedID: ["2001"], RelatedLabel: "summer", isInGame: true },
+                    "dlc_003": { id: "dlc_003", dlcName: "万圣节特效", RelatedID: ["3001", "3002", "3003"], RelatedLabel: "halloween", isInGame: false }
+                },
+                design: {
+                    "Assets/Res/DLC/festival/textures": 45,
+                    "Assets/Res/DLC/summer/models": 32,
+                    "Assets/Res/DLC/halloween/effects": 28
+                }
+            };
+
+            updateStatistics();
+            createAllCharts();
+
+            document.getElementById('sampleDataArea').innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> 示例数据加载成功！界面现在可以正常显示。
+                </div>
+            `;
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            // Bundle统计
+            if (bundleData && bundleData.all_stats) {
+                const totalBundles = bundleData.all_stats.reduce((sum, item) => sum + item.count, 0);
+                const totalSize = bundleData.all_stats.reduce((sum, item) => sum + item.total_size, 0);
+                const totalAssets = bundleData.all_stats.reduce((sum, item) => sum + item.count, 0);
+
+                $('#totalBundles').text(totalBundles.toLocaleString());
+                $('#totalSize').text(formatBytes(totalSize));
+                $('#totalAssets').text(totalAssets.toLocaleString());
+                $('#groupTypes').text(bundleData.all_stats.length);
+            } else {
+                $('#totalBundles').text('无数据');
+                $('#totalSize').text('无数据');
+                $('#totalAssets').text('无数据');
+                $('#groupTypes').text('无数据');
+            }
+
+            // Shader统计
+            if (shaderData && typeof shaderData === 'object') {
+                const shaderEntries = Object.entries(shaderData);
+                const totalVariants = shaderEntries.reduce((sum, [, count]) => sum + count, 0);
+                const avgVariants = shaderEntries.length > 0 ? Math.round(totalVariants / shaderEntries.length) : 0;
+
+                $('#totalVariants').text(totalVariants.toLocaleString());
+                $('#totalShaders').text(shaderEntries.length);
+                $('#avgVariants').text(avgVariants);
+            } else {
+                $('#totalVariants').text('无数据');
+                $('#totalShaders').text('无数据');
+                $('#avgVariants').text('无数据');
+            }
+
+            // DLC统计
+            if (dlcData && dlcData.infos && typeof dlcData.infos === 'object') {
+                const dlcEntries = Object.entries(dlcData.infos);
+                const inGameDLCs = dlcEntries.filter(([, item]) => item && item.isInGame).length;
+                const relatedAssets = dlcEntries.reduce((sum, [, item]) => {
+                    if (item && item.RelatedID) {
+                        return sum + (Array.isArray(item.RelatedID) ? item.RelatedID.length : 1);
+                    }
+                    return sum;
+                }, 0);
+
+                const allLabels = dlcEntries.flatMap(([, item]) => {
+                    if (item && item.RelatedLabel) {
+                        return Array.isArray(item.RelatedLabel) ? item.RelatedLabel : [item.RelatedLabel];
+                    }
+                    return [];
+                });
+                const uniqueLabels = [...new Set(allLabels.filter(label => label))].length;
+
+                $('#totalDLCs').text(dlcEntries.length);
+                $('#inGameDLCs').text(inGameDLCs);
+                $('#relatedAssets').text(relatedAssets);
+                $('#totalLabels').text(uniqueLabels);
+            } else {
+                $('#totalDLCs').text('无数据');
+                $('#inGameDLCs').text('无数据');
+                $('#relatedAssets').text('无数据');
+                $('#totalLabels').text('无数据');
+            }
+        }
+
+        // 创建所有图表
+        function createAllCharts() {
+            createBundleDistributionCharts();
+            createShaderCharts();
+            createDLCCharts();
+        }
+
+        // 创建Bundle分布图表
+        function createBundleDistributionCharts() {
+            if (!bundleData || !bundleData.all_stats) {
+                $('#sizeDistributionChart').html('<div class="error-message">Bundle数据不可用</div>');
+                $('#countDistributionChart').html('<div class="error-message">Bundle数据不可用</div>');
+                return;
+            }
+
+            const names = bundleData.all_stats.map(item => item.name);
+            const sizes = bundleData.all_stats.map(item => item.total_size);
+            const counts = bundleData.all_stats.map(item => item.count);
+
+            // 大小分布饼图
+            const sizeChart = echarts.init(document.getElementById('sizeDistributionChart'));
+            sizeChart.setOption({
+                title: { text: 'Bundle大小分布', left: 'center' },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        return `${params.name}<br/>${formatBytes(params.value)} (${params.percent}%)`;
+                    }
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: names.map((name, i) => ({
+                        name: name,
+                        value: sizes[i]
+                    })),
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            });
+
+            // 数量分布柱状图
+            const countChart = echarts.init(document.getElementById('countDistributionChart'));
+            countChart.setOption({
+                title: { text: 'Bundle数量分布', left: 'center' },
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: names,
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 0
+                    }
+                },
+                yAxis: { type: 'value', name: '数量' },
+                series: [{
+                    type: 'bar',
+                    data: counts,
+                    itemStyle: {
+                        color: function(params) {
+                            const colorList = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'];
+                            return colorList[params.dataIndex % colorList.length];
+                        }
+                    },
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }]
+            });
+        }
+
+        // 创建Shader图表
+        function createShaderCharts() {
+            if (!shaderData || typeof shaderData !== 'object') {
+                $('#shaderVariantsChart').html('<div class="error-message">Shader数据不可用</div>');
+                $('#shaderTableBody').html('<tr><td colspan="4" class="text-center text-muted">无Shader数据</td></tr>');
+                return;
+            }
+
+            const shaderEntries = Object.entries(shaderData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            if (shaderEntries.length === 0) {
+                $('#shaderVariantsChart').html('<div class="error-message">无Shader变体数据</div>');
+                return;
+            }
+
+            const chart = echarts.init(document.getElementById('shaderVariantsChart'));
+            chart.setOption({
+                title: { text: 'Top 10 Shader变体分布', left: 'center' },
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: shaderEntries.map(([name]) => {
+                        // 缩短名称显示
+                        const parts = name.split('/');
+                        return parts[parts.length - 1] || name;
+                    }),
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 0
+                    }
+                },
+                yAxis: { type: 'value', name: '变体数量' },
+                series: [{
+                    type: 'bar',
+                    data: shaderEntries.map(([, count]) => count),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#ff9a9e' },
+                            { offset: 1, color: '#fecfef' }
+                        ])
+                    },
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }]
+            });
+
+            // 填充Shader表格
+            populateShaderTable();
+        }
+
+        // 填充Shader表格
+        function populateShaderTable() {
+            const tbody = $('#shaderTableBody');
+
+            if (!shaderData || typeof shaderData !== 'object') {
+                tbody.html('<tr><td colspan="4" class="text-center text-muted">无Shader数据</td></tr>');
+                return;
+            }
+
+            const sortedShaders = Object.entries(shaderData).sort((a, b) => b[1] - a[1]);
+            const totalVariants = sortedShaders.reduce((sum, [, count]) => sum + count, 0);
+
+            if (sortedShaders.length === 0) {
+                tbody.html('<tr><td colspan="4" class="text-center text-muted">无Shader数据</td></tr>');
+                return;
+            }
+
+            tbody.html(sortedShaders.map(([path, count], index) => `
+                <tr>
+                    <td><small title="${path}">${path.length > 50 ? path.substring(0, 50) + '...' : path}</small></td>
+                    <td><strong>${count.toLocaleString()}</strong></td>
+                    <td>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar" style="width: ${(count / totalVariants * 100).toFixed(1)}%"></div>
+                        </div>
+                        <small>${(count / totalVariants * 100).toFixed(1)}%</small>
+                    </td>
+                    <td>
+                        <span class="badge ${count > 1000 ? 'badge-danger' : count > 100 ? 'badge-warning' : 'badge-success'}">
+                            ${count > 1000 ? '高危' : count > 100 ? '警告' : '正常'}
+                        </span>
+                    </td>
+                </tr>
+            `).join(''));
+        }
+
+        // 创建DLC图表
+        function createDLCCharts() {
+            populateDLCTables();
+        }
+
+        // 填充DLC表格
+        function populateDLCTables() {
+            // DLC信息表
+            const dlcTbody = $('#dlcInfosTableBody');
+            if (dlcData && dlcData.infos && typeof dlcData.infos === 'object' && Object.keys(dlcData.infos).length > 0) {
+                dlcTbody.html(Object.entries(dlcData.infos).map(([key, item]) => {
+                    if (!item) return '';
+
+                    const relatedID = item.RelatedID ?
+                        (Array.isArray(item.RelatedID) ? item.RelatedID.join(', ') : item.RelatedID.toString()) :
+                        '无';
+
+                    const relatedLabel = item.RelatedLabel ?
+                        (Array.isArray(item.RelatedLabel) ? item.RelatedLabel.join(', ') : item.RelatedLabel.toString()) :
+                        '无';
+
+                    return `
+                        <tr>
+                            <td><code>${item.id || key}</code></td>
+                            <td>${item.dlcName || 'N/A'}</td>
+                            <td><small title="${relatedID}">${relatedID.length > 30 ? relatedID.substring(0, 30) + '...' : relatedID}</small></td>
+                            <td>${relatedLabel}</td>
+                            <td>
+                                <span class="badge ${item.isInGame ? 'badge-success' : 'badge-secondary'}">
+                                    ${item.isInGame ? '是' : '否'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join(''));
+            } else {
+                dlcTbody.html('<tr><td colspan="5" class="text-center text-muted">无DLC数据</td></tr>');
+            }
+
+            // 设计映射表
+            const designTbody = $('#designMapTableBody');
+            if (dlcData && dlcData.design && typeof dlcData.design === 'object' && Object.keys(dlcData.design).length > 0) {
+                designTbody.html(Object.entries(dlcData.design).map(([path, count]) => `
+                    <tr>
+                        <td><small title="${path}">${path.length > 50 ? path.substring(0, 50) + '...' : path}</small></td>
+                        <td><strong>${count.toLocaleString()}</strong></td>
+                        <td><span class="badge badge-info">${getFileType(path)}</span></td>
+                        <td>
+                            <span class="badge ${count > 100 ? 'badge-warning' : 'badge-success'}">
+                                ${count > 100 ? '需优化' : '正常'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join(''));
+            } else {
+                designTbody.html('<tr><td colspan="4" class="text-center text-muted">无设计映射数据</td></tr>');
+            }
+        }
+
+        // 工具函数
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function getFileType(path) {
+            const ext = path.split('.').pop().toLowerCase();
+            const types = {
+                'prefab': '预制体', 'mat': '材质', 'fbx': '模型',
+                'png': '图片', 'jpg': '图片', 'tga': '图片',
+                'anim': '动画', 'controller': '控制器', 'shader': '着色器',
+                'json': '配置', 'txt': '文本', 'bytes': '二进制'
+            };
+            return types[ext] || ext;
+        }
+
+        function searchResources() {
+            const query = $('#resourceSearch').val().trim();
+            if (!query) return;
+
+            const resultsDiv = $('#searchResults');
+            resultsDiv.html(`
+                <div class="alert alert-info">
+                    <i class="bi bi-search"></i> 搜索: "${query}"
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">模拟搜索结果 1</h6>
+                            <small>2.5MB</small>
+                        </div>
+                        <p class="mb-1">包含与 "${query}" 相关的资源文件</p>
+                        <small>路径: Assets/Examples/${query}</small>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">模拟搜索结果 2</h6>
+                            <small>1.2MB</small>
+                        </div>
+                        <p class="mb-1">另一个相关资源文件</p>
+                        <small>类型: 预制体</small>
+                    </div>
+                </div>
+            `);
+        }
+
+        function showLoadingState() {
+            // 可以添加全局加载指示器
+            $('.loading-spinner').show();
+        }
+
+        function hideLoadingState() {
+            $('.loading-spinner').hide();
+        }
+
+        function showError(message) {
+            // 在页面顶部显示错误信息
+            const alertDiv = $(`
+                <div class="alert alert-danger alert-dismissible fade show m-3">
+                    <i class="bi bi-exclamation-triangle"></i> ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            `);
+            $('.content').prepend(alertDiv);
+
+            // 5秒后自动消失
+            setTimeout(() => {
+                alertDiv.alert('close');
+            }, 5000);
+        }
+
+        // 窗口调整大小时重绘图表
+        $(window).on('resize', function() {
+            // 重绘所有ECharts图表
+            $('.echarts').each(function() {
+                const chart = echarts.getInstanceByDom(this);
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

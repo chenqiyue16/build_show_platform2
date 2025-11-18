@@ -1,0 +1,132 @@
+﻿{
+    "Bundles": [
+        {
+            "FileName": "10000060452137255920",
+            "IsInternal": true,
+            "IsBundle": true,
+            "GroupType": "Effect_Internal",
+            "XXHash": 446631621,
+            "Size": 5563,
+            "CombineName": "13311514233016781930",
+            "CombineSize": 208555273,
+            "CombineOffset": 33402310,
+            "CombineHash": 3220583796,
+            "DownloadVersion": 0,
+            "Labels": [
+                "Internal",
+                "10000060452137255920"
+            ],
+            "DlcGroups": [],
+            "Assets": [
+                {
+                    "AssetPath": "Assets/Res/Effect/battle/male_dualhalberd/fx_battle_dualhalberd_wnid01.prefab",
+                    "Size": 1082557,
+                    "InnerSize": 0,
+                    "XXHash": 2824693113
+                }
+            ]
+        },
+        {
+            "FileName": "1000008319813085601",
+            "IsInternal": true,
+            "IsBundle": true,
+            "GroupType": "Effect_Internal",
+            "XXHash": 927932900,
+            "Size": 13853,
+            "CombineName": "13311514233016781930",
+            "CombineSize": 208555273,
+            "CombineOffset": 202845151,
+            "CombineHash": 3220583796,
+            "DownloadVersion": 0,
+            "Labels": [
+                "Internal",
+                "1000008319813085601"
+            ],
+            "DlcGroups": [],
+            "Assets": [
+                {
+                    "AssetPath": "Assets/Res/Effect/device/fx_device_guildstation_parkour_check_idle.prefab",
+                    "Size": 1209601,
+                    "InnerSize": 0,
+                    "XXHash": 2740847742
+                },
+                {
+                    "AssetPath": "Assets/Res/Effect/_common/animation/fx_device_guildstation_parkour_check_idle.anim",
+                    "Size": 13414,
+                    "InnerSize": 0,
+                    "XXHash": 7337651
+                },
+                {
+                    "AssetPath": "Assets/Res/Effect/_common/animation/fx_device_guildstation_parkour_check_active.anim",
+                    "Size": 23218,
+                    "InnerSize": 0,
+                    "XXHash": 2882306774
+                },
+                {
+                    "AssetPath": "Assets/Res/LegoComponent/Device/lego_device_yuanbao_01_lod0.fbx",
+                    "Size": 46624,
+                    "InnerSize": 0,
+                    "XXHash": 498057503
+                }
+            ]
+        },
+        {
+            "FileName": "10000092548327901208",
+            "IsInternal": true,
+            "IsBundle": true,
+            "GroupType": "Effect_Internal",
+            "XXHash": 3348821976,
+            "Size": 5835,
+            "CombineName": "18164129043245620603",
+            "CombineSize": 209715184,
+            "CombineOffset": 136315572,
+            "CombineHash": 3706548921,
+            "DownloadVersion": 0,
+            "Labels": [
+                "Internal",
+                "10000092548327901208"
+            ],
+            "DlcGroups": [],
+            "Assets": [
+                {
+                    "AssetPath": "Assets/Res/Effect/Generated/public/fx_debuff_shield_broken_waring_01_High.prefab",
+                    "Size": 601752,
+                    "InnerSize": 0,
+                    "XXHash": 2272306921
+                },
+                {
+                    "AssetPath": "Assets/Res/Effect/Generated/public/fx_debuff_shield_broken_waring_01_Low.prefab",
+                    "Size": 363673,
+                    "InnerSize": 0,
+                    "XXHash": 2245054433
+                },
+                {
+                    "AssetPath": "Assets/Res/Effect/Generated/public/fx_debuff_shield_broken_waring_01_Medium.prefab",
+                    "Size": 482729,
+                    "InnerSize": 0,
+                    "XXHash": 614636806
+                }
+            ]
+        }
+    ],
+    "LabelInfos": [
+        {
+            "Label": "4900000",
+            "DesignTables": [
+                "MapConfig_Map"
+            ]
+        },
+        {
+            "Label": "4900001",
+            "DesignTables": [
+                "MapConfig_Map"
+            ]
+        },
+        {
+            "Label": "4900006",
+            "DesignTables": [
+                "MapConfig_Map"
+            ]
+        }
+    ]
+}

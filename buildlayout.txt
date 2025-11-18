@@ -1,0 +1,112 @@
+WARNING! The formatting in this file may change in future package versions.
+Unity Version: 2021.3.4f1
+com.unity.addressables: 1.19.15
+Summary
+	Addressable Groups: 10
+	Explicit Assets Addressed: 134128
+	Total Bundle: 71852 (12 Scene Bundles, 71840 Non-Scene Bundles)
+	Total Build Size: 5.95GB (6389155353B)
+	Total MonoScript Size: 6.28MB (6585212B)
+	Total AssetBundle Object Size: 53.65MB (56256132B)
+
+Group Animation (Bundles: 600, Total Size: 280.41MB (294028889B), Explicit Asset Count: 16767)
+	Schemas
+	Archive 4ccfa81c5c5bdc4bd807426c7ea0835b (Size: 2.32KB (2376B), Compression: Lz4HC, Asset Bundle Object Size: 260B (260B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Ornament/animation/ch_fcalw_dart_s_tiehubi_fly_01.FBX (Total Size: 5.96KB (6100B), Size from Objects: 5.96KB (6100B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Ornament/animation/ch_fcalw_dart_s_tiehubi_attach_01.FBX (Total Size: 5.85KB (5992B), Size from Objects: 5.85KB (5992B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Ornament/animation/ch_fcalw_dart_s_tiehubi_recycle_01.FBX (Total Size: 5.85KB (5992B), Size from Objects: 5.85KB (5992B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-a0d586f0cd1644d6652026099aa0c288 (Size: 21.92KB (22444B))
+				Data From Other Assets (0)
+	Archive 6a17d34870f9fd825fc9cd40e7243cf8 (Size: 655.94KB (671680B), Compression: Lz4HC, Asset Bundle Object Size: 612B (612B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Ornament/animation/ch_fcalw_s_tiehubi_idle_ui_01.FBX (Total Size: 9.14KB (9356B), Size from Objects: 9.14KB (9356B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Ornament/animation/ch_fcalw_ss_feishu_idle_01.FBX (Total Size: 641.01KB (656396B), Size from Objects: 641.01KB (656396B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-e42f538e458b5c02c468f2c6de429ba1 (Size: 800.38KB (819588B))
+				Data From Other Assets (0)
+	Archive 959642e14e5b4d9065f4b06e83f6cdc5 (Size: 4.68KB (4789B), Compression: Lz4HC, Asset Bundle Object Size: 304B (304B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Device/pve_monster_treasurechest/animation/device_pve_monster_treasurechest_born_03.FBX (Total Size: 4.57KB (4684B), Size from Objects: 4.57KB (4684B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Device/pve_monster_treasurechest/animation/device_pve_monster_treasurechest_interacting_03.FBX (Total Size: 6.75KB (6908B), Size from Objects: 6.75KB (6908B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-a3a8e935bd2a6efca072a5d5077e63dc (Size: 21.99KB (22516B))
+				Data From Other Assets (0)
+	Archive e55fca9b210691ca1bd15d4d95d4cfe2 (Size: 996B (996B), Compression: Lz4HC, Asset Bundle Object Size: 304B (304B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Device/Tudimiao/animation/device_tudimiao_close_01.FBX (Total Size: 3.15KB (3228B), Size from Objects: 3.15KB (3228B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Device/Tudimiao/animation/device_tudimiao_open_01.FBX (Total Size: 3.15KB (3228B), Size from Objects: 3.15KB (3228B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Device/Tudimiao/animation/device_tudimiao_cooling_01.FBX (Total Size: 3.16KB (3232B), Size from Objects: 3.16KB (3232B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Device/Tudimiao/animation/device_tudimiao_idle_01.FBX (Total Size: 3.15KB (3228B), Size from Objects: 3.15KB (3228B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-264e169f4c51a23cd8d18703d8ae0ac1 (Size: 16.92KB (17328B))
+				Data From Other Assets (0)
+	Archive 9e8bd1c72a0d3c720875be10ae16b811 (Size: 2.45MB (2566342B), Compression: Lz4HC, Asset Bundle Object Size: 4.81KB (4924B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_attack_heavy_01_recover.FBX (Total Size: 29.21KB (29916B), Size from Objects: 29.21KB (29916B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_attack_light_02_recover.FBX (Total Size: 21.78KB (22304B), Size from Objects: 21.78KB (22304B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_run_inertia_left_01.FBX (Total Size: 53.6KB (54884B), Size from Objects: 53.6KB (54884B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_sprint_attack_heavy_01.FBX (Total Size: 28.79KB (29484B), Size from Objects: 28.79KB (29484B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-39dd73a6a85bc04156531e70b2e200f5 (Size: 3.22MB (3375264B))
+				Data From Other Assets (0)
+	Archive 2a4ee93435feb0e420979a1111492fee (Size: 121.9KB (124822B), Compression: Lz4HC, Asset Bundle Object Size: 436B (436B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_enchant.FBX (Total Size: 78.62KB (80508B), Size from Objects: 78.62KB (80508B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/tulongdao/female_tulongdao_attack_02_recover.FBX (Total Size: 11.94KB (12228B), Size from Objects: 11.94KB (12228B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/tulongdao/female_tulongdao_attack_01_pre.FBX (Total Size: 12.1KB (12392B), Size from Objects: 12.1KB (12392B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/tulongdao/female_tulongdao_attack_01_recover.FBX (Total Size: 13.63KB (13952B), Size from Objects: 13.63KB (13952B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-c62eb98b5e4c37de2b3198c4c3c425b6 (Size: 174.93KB (179124B))
+				Data From Other Assets (0)
+	Archive 2f583a9ffe187f43d43bd2a93a912a60 (Size: 46.09KB (47201B), Compression: Lz4HC, Asset Bundle Object Size: 348B (348B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_glide_attack_heavy_soul_01.FBX (Total Size: 9.77KB (10008B), Size from Objects: 9.77KB (10008B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_glide_attack_light_soul_01.FBX (Total Size: 18.93KB (19380B), Size from Objects: 18.93KB (19380B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+			Assets/Art/Characters/Player/l22female/animation/blade/female_blade_glide_attack_heavy_soul_01_pre.FBX (Total Size: 9.86KB (10096B), Size from Objects: 9.86KB (10096B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-d4cd00a52a596f62bf829c25d141cc83 (Size: 80.91KB (82852B))
+				Data From Other Assets (0)
+	Archive b3dff27b53b49d499c43a9f9173d2fc0 (Size: 881B (881B), Compression: Lz4HC, Asset Bundle Object Size: 312B (312B))
+		Bundle Dependencies: 9680603c10d6fe8c2a0091865cfe42d2, 1cb4c188a267624924f85ffa5e6423ff
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/Scene/total_maps/common/procedural_decal_materials/mat_decal_leaking_02_procedural.mat (Total Size: 500B (500B), Size from Objects: 500B (500B), Size from Streamed Data: 0B (0B), File Index: 0, Addressable Name: )
+				External References: Assets/Res/environment/decal/procedural_texture/t_decal_leaking_02_mrav.tga, Packages/com.unity.render-pipelines.universal/Shaders/Leihuo/Mobile/LHM_Procedural_Decal.shader, Assets/Res/environment/decal/procedural_texture/t_decal_leaking_02_d.tga, Assets/Res/environment/decal/procedural_texture/t_decal_leaking_02_n.tga
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-037b0850a837b2f37a3528610cf5d272 (Size: 4.79KB (4908B))
+				Data From Other Assets (0)
+BuiltIn Bundles
+	Archive 96d16b51e8e370782d2bed8f6af640da (Size: 3.99KB (4088B), Compression: Lz4HC, Asset Bundle Object Size: 128B (128B))
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B (0B))
+				CAB-22adbbcd46b21f3d89050d99a538c306 (Size: 41.06KB (42045B))
+				Data From Other Assets (1)
+					Resources/unity_builtin_extra (Size: 36.87KB (37754B), Size from Objects: 36.87KB (37754B), Size from Streamed Data: 0B (0B), Object Count: 14)
+						Referencing Assets: 

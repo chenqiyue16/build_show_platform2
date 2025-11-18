@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<!--[if IE 9]>         <html class="ie9 no-focus"> <![endif]-->
+<!--[if gt IE 9]><!--> <html class="no-focus"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+
+        <title>OneUI </title>
+
+        <meta name="description" content="OneUI - Admin Dashboard Template & UI Framework">
+        <meta name="author" content="pixelcave">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0">
+
+        <!-- Icons -->
+        <!-- The following icons can be replaced with your own, they are used by desktop and mobile browsers -->
+        <link rel="shortcut icon" href="/static/assets/img/favicons/favicon.png">
+
+        <link rel="icon" type="image/png" href="/static/assets/img/favicons/favicon-16x16.png" sizes="16x16">
+        <link rel="icon" type="image/png" href="/static/assets/img/favicons/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/static/assets/img/favicons/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="/static/assets/img/favicons/favicon-160x160.png" sizes="160x160">
+        <link rel="icon" type="image/png" href="/static/assets/img/favicons/favicon-192x192.png" sizes="192x192">
+
+        <link rel="apple-touch-icon" sizes="57x57" href="/static/assets/img/favicons/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/static/assets/img/favicons/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/static/assets/img/favicons/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/static/assets/img/favicons/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/static/assets/img/favicons/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/static/assets/img/favicons/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/static/assets/img/favicons/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/static/assets/img/favicons/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/img/favicons/apple-touch-icon-180x180.png">
+        <!-- END Icons -->
+
+        <!-- Stylesheets -->
+        <!-- Web fonts -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400italic,600,700%7COpen+Sans:300,400,400italic,600,700">
+
+        <!-- Page JS Plugins CSS -->
+        <link rel="stylesheet" href="/static/assets/js/plugins/datatables/jquery.dataTables.min.css">
+
+        <!-- OneUI CSS framework -->
+        <link rel="stylesheet" id="css-main" href="/static/assets/css/oneui.css">
+
+        <!-- You can include a specific file from css/themes/ folder to alter the default color theme of the template. eg: -->
+        <!-- <link rel="stylesheet" id="css-theme" href="/static/assets/css/themes/flat.min.css"> -->
+        <!-- END Stylesheets -->
+    </head>
+    <body>
+        <!-- Page Container -->
+        <!-- Apps Modal -->
+        <!-- Opens from the button in the header -->
+
+        <!-- Material Design -->
+        <h2 class="content-heading">Material Design</h2>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="block">
+                    <div class="block-content block-content-narrow">
+                        <form class="form-horizontal push-10-t" action="base_forms_elements_modern.html" method="post" onsubmit="return false;">
+                            <!-- 第一行四个下拉框 -->
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <div class="form-material floating">
+                                        <select class="form-control" style="width:200px" id="select_platform" name="select_platform">
+                                            {% for target in build_targets %}
+                                            <option value="{{ target }}">{{ target }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="select_platform">Platform Select</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="form-material floating">
+                                        <select class="form-control" style="width:200px" id="select_schema" name="select_schema">
+                                            {% for schema in build_schemas %}
+                                            <option value="{{ schema }}">{{ schema }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="select_schema">Schema Select</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="form-material floating">
+                                        <select class="form-control" style="width:200px" id="material-select3" name="select3">
+                                            <option></option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                        <label for="material-select3">Select 3</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="form-material floating">
+                                        <select class="form-control" style="width:200px" id="material-select4" name="select4">
+                                            <option></option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                        <label for="material-select4">Select 4</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Block Tabs Animated Slide Right -->
+                    <div class="block-content" style="width: 100%; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
+                        <ul class="nav nav-tabs" data-toggle="tabs" >
+                            <li class="active">
+                                <a href="#btabs-animated-slideright-home">列表</a>
+                            </li>
+                            <li>
+                                <a href="#btabs-animated-slideright-profile">图表</a>
+                            </li>
+                        </ul>
+                        <div class="block-content tab-content" >
+                            <div class="tab-pane fade fade-right in active" id="btabs-animated-slideright-home">
+                            <table class="table table-bordered table-striped js-dataTable-simple">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">id</th>
+                                        <th>Project</th>
+                                        <th class="hidden-xs">status</th>
+                                        <th class="hidden-xs">time</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center">id</td>
+                                        <td class="hidden-xs">project</td>
+                                        <td class="hidden-xs">status</td>
+                                        <td class="hidden-xs">time</td>
+                                        <td class="text-center"> <a href="" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-default" data-toggle="tooltip" title="点击查看（新标签页）"> <i class="fa fa-pencil"></i> </a> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                            <div class="tab-pane fade fade-right" id="btabs-animated-slideright-profile">
+                                <h4 class="font-w300 push-15">Profile Tab</h4>
+                                <p>Content slides in to the right..</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Block Tabs Animated Slide Right -->
+                </div>
+            </div>
+        </div>
+
+        <div class="block">
+
+        </div>
+        <!-- END Apps Modal -->
+
+        <!-- OneUI Core JS: jQuery, Bootstrap, slimScroll, scrollLock, Appear, CountTo, Placeholder, Cookie and App.js -->
+        <script src="/static/assets/js/core/jquery.min.js"></script>
+        <script src="/static/assets/js/core/bootstrap.min.js"></script>
+        <script src="/static/assets/js/core/jquery.slimscroll.min.js"></script>
+        <script src="/static/assets/js/core/jquery.scrollLock.min.js"></script>
+        <script src="/static/assets/js/core/jquery.appear.min.js"></script>
+        <script src="/static/assets/js/core/jquery.countTo.min.js"></script>
+        <script src="/static/assets/js/core/jquery.placeholder.min.js"></script>
+        <script src="/static/assets/js/core/js.cookie.min.js"></script>
+        <script src="/static/assets/js/app.js"></script>
+
+        <!-- Page JS Plugins -->
+        <script src="/static/assets/js/plugins/datatables/jquery.dataTables.min.js"></script>
+
+        <!-- Page JS Code -->
+        <script src="/static/assets/js/pages/base_tables_datatables.js"></script>
+        <script>
+                $(document).ready(function() {
+                const handleComponentChange = () => {
+                    const platform = $('#select_platform').val();
+                    const schema = $('#select_schema').val();
+                    // 根据需求组合参数，示例使用平台值
+                    loadTableData(platform, schema);
+                };
+
+                // 双向绑定change事件
+                $('#select_schema, #select_platform').on('change', handleComponentChange);
+
+                // 初始化加载
+                $('#select_platform').triggerHandler('change'); // 静默触发避免循环
+
+                // 数据加载函数
+                function loadTableData(platform, schema) {
+                    console.log("123456")
+                    $.ajax({
+                        url: 'get_bundle_info_list?platform=' + platform + '&schema=' + schema,
+                        success: function (response) {
+                            console.log("223456")
+                            // 数据校验
+                            if (response.data && response.data.length > 0) {
+                                // 确保数据字段存在
+                                const verifiedData = response.data.map(item => ({
+                                    id: item._id.$oid || 'N/A',
+                                    Project: item.project || 'Unnamed',
+                                    status: item.status || 'Unknown',
+                                    time: item.build_time || new Date().toISOString()
+                                }));
+                                initDataTable(verifiedData);
+                            } else {
+                                console.warn('Empty dataset');
+                                initDataTable([]); // 初始化空表格
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error('API Error:', xhr.statusText);
+                        }
+                    });
+                }
+
+                function initDataTable(data) {
+                    $('.js-dataTable-simple').DataTable({
+                        destroy: true,
+                        data: data,
+                        columns: [
+                            {data: 'id', className: 'text-center'},
+                            {data: 'Project'},
+                            {data: 'status', className: 'hidden-xs'},
+                            {data: 'time', className: 'hidden-xs'},
+                            {
+                                data: null,
+                                className: 'text-center',
+                                render: function (data, type, row) {
+                                    return `
+                                    <a href="bundle_info_detail/${row.Project}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-xs btn-default"
+                                       data-toggle="tooltip"
+                                       title="点击查看（新标签页）">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>`;
+                                }
+                            }
+                        ],
+                        paging: true,          // 启用分页功能
+                        pageLength: 1,        // 默认每页显示10条
+                        lengthMenu: [10, 25, 50], // 分页数量选项
+                        ordering: true,        // 启用排序
+                        searching: true,       // 启用搜索框
+                        autoWidth: false,
+                        language: {
+                            paginate: {
+                                previous: '‹',
+                                next: '›',
+                                first: '«',
+                                last: '»'
+                            },
+                            info: "显示 _START_ 到 _END_ 共 _TOTAL_ 条",
+                            infoEmpty: "无数据",
+                            lengthMenu: "显示 _MENU_ 条",
+                            search: "搜索:"
+                        }
+                    });
+                }
+            })
+        </script>
+    </body>
+</html>
