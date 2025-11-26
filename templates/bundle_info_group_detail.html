@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Bundle分组详情 - {{ info_id }}</title>
+    <link rel="stylesheet" href="/static/assets/css/oneui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        /* 增强表格样式 */
+        .table-sm td, .table-sm th {
+            padding: 0.5rem;
+        }
+
+        .bundle-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .asset-container {
+            background-color: #f8f9fa;
+        }
+
+        /* 资源表格样式 */
+        .asset-table {
+            font-size: 0.85rem;
+        }
+
+        .asset-table th {
+            background-color: #e9ecef;
+        }
+
+        /* 操作按钮样式 */
+        .toggle-assets {
+            transition: all 0.2s;
+        }
+
+        .toggle-assets:hover {
+            transform: translateY(-1px);
+        }
+        .group-header {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .group-header:hover {
+            background-color: #e9ecef;
+        }
+        .group-header.active {
+            background-color: #d4edda;
+        }
+        .bundle-item {
+            padding: 8px 15px;
+            margin-left: 20px;
+            border-left: 2px solid #dee2e6;
+        }
+        .asset-item {
+            padding: 5px 10px;
+            margin-left: 40px;
+            font-size: 0.9em;
+            color: #6c757d;
+            border-left: 2px solid #adb5bd;
+        }
+        .size-badge {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+        .toggle-icon.rotated {
+            transform: rotate(90deg);
+        }
+        .progress-thin {
+            height: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <!-- Header -->
+        <div class="block">
+            <div class="block-content bg-primary-dark text-center">
+                <h1 class="h2 text-white mb-2">
+                    <i class="bi bi-folder"></i> Bundle分组详情
+                </h1>
+                <h2 class="h4 text-white-op">{{ info_id }}</h2>
+                <a href="/bundle_info_detail/{{ info_id }}" class="btn btn-sm btn-info mt-2">
+                    <i class="bi bi-arrow-left"></i> 返回总览
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="block">
+            <div class="block-content">
+                <!-- Filter Section -->
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <select class="form-control" id="groupFilter">
+                            <option value="">所有分组</option>
+                            <!-- 动态填充分组选项 -->
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="bundleSearch" placeholder="搜索Bundle名称...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" id="searchBtn">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <i class="bi bi-folder"></i> 分组数量: <strong id="groupCount">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-archive"></i> Bundle总数: <strong id="bundleCount">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success">
+                            <i class="bi bi-file-earmark"></i> 资源总数: <strong id="assetCount">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group List -->
+                <div id="groupList">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="/static/assets/js/core/jquery.min.js"></script>
+    <script src="/static/assets/js/core/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const info_id = "{{ info_id }}";
+            let allGroups = [];
+
+            // 加载分组数据
+            function loadGroupData(groupFilter = '') {
+                $('#groupList').html('<div class="text-center text-muted py-5"><i class="bi bi-arrow-repeat spinner"></i> 加载中...</div>');
+
+                let url = `/BuildWeb/get_grouped_bundle_details?info_id=${info_id}`;
+                if (groupFilter) {
+                    url += `&group_type=${groupFilter}`;
+                }
+
+                $.get(url, function(response) {
+                    if (response.status === 'success') {
+                        renderGroupData(response.data);
+                    } else {
+                        $('#groupList').html(`
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i> 加载失败: ${response.message || '未知错误'}
+                            </div>
+                        `);
+                    }
+                }).fail(function() {
+                    $('#groupList').html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> 请求失败，请检查网络连接
+                        </div>
+                    `);
+                });
+            }
+
+        // 修改renderGroupData函数
+        function renderGroupData(groups) {
+            const $container = $('#groupList');
+            $container.empty();
+
+            // 先渲染容器框架
+            const containerHtml = `
+                <div class="accordion" id="groupAccordion">
+                    ${groups.map((group, index) => `
+                        <div class="card group-container mb-2" id="group-${index}">
+                            <!-- 组标题 -->
+                            <div class="card-header group-header" id="heading-${index}"
+                                 data-toggle="collapse" data-target="#collapse-${index}">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <i class="bi bi-folder-fill text-primary mr-2"></i>
+                                        <strong>${escapeHtml(group.group_name)}</strong>
+                                        <span class="badge badge-pill badge-primary ml-2">${group.bundle_count}</span>
+                                        <span class="badge size-badge ml-2">${formatBytes(group.total_size)}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-muted">${group.total_assets} 资源</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 内容区域 -->
+                            <div id="collapse-${index}" class="collapse"
+                                 aria-labelledby="heading-${index}" data-parent="#groupAccordion">
+                                <div class="card-body p-0">
+                                    <div class="text-center py-3" id="groupContent-${index}">
+                                        <i class="bi bi-arrow-repeat spinner"></i> 加载中...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            $container.html(containerHtml);
+
+            // 延迟加载每个组的内容
+            groups.forEach((group, index) => {
+                setTimeout(() => {
+                    renderGroupContent(group, index);
+                }, 50 * index); // 50ms间隔
+            });
+        }
+
+        // 单独渲染每个组的内容
+        function renderGroupContent(group, index) {
+            const $content = $(`#groupContent-${index}`);
+
+            try {
+                let bundlesHtml = '';
+                const chunkSize = 20; // 每20个Bundle为一组
+
+                // 分块处理Bundle
+                for (let i = 0; i < group.bundles.length; i += chunkSize) {
+                    const chunk = group.bundles.slice(i, i + chunkSize);
+                    bundlesHtml += renderBundleChunk(chunk);
+                }
+
+                $content.html(`
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="40%">Bundle名称</th>
+                                <th width="15%">大小</th>
+                                <th width="15%">资源数</th>
+                                <th width="15%">类型</th>
+                                <th width="15%">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${bundlesHtml}
+                        </tbody>
+                    </table>
+                `);
+
+                // 绑定事件
+                $(`#group-${index} .toggle-assets`).click(function(e) {
+                    e.stopPropagation();
+                    const $row = $(this).closest('tr');
+                    $row.next('.asset-container').toggle();
+                });
+
+            } catch (e) {
+                $content.html(`
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> 渲染错误: ${e.message}
+                    </div>
+                `);
+            }
+        }
+
+        // 渲染Bundle分块
+        function renderBundleChunk(bundles) {
+            return bundles.map(bundle => `
+                <tr class="bundle-row">
+                    <td>
+                        <i class="bi bi-file-earmark-zip text-secondary mr-2"></i>
+                        ${escapeHtml(bundle.file_name)}
+                        ${bundle.is_internal ? '<span class="badge badge-danger ml-2">Internal</span>' : ''}
+                    </td>
+                    <td>${formatBytes(bundle.size)}</td>
+                    <td>${bundle.asset_count}</td>
+                    <td>-</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary toggle-assets">
+                            <i class="bi bi-list"></i> 查看资源
+                        </button>
+                    </td>
+                </tr>
+                <tr class="asset-container" style="display:none">
+                    <td colspan="5">
+                        ${renderAssets(bundle.assets)}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 单独渲染Assets
+        function renderAssets(assets) {
+            if (!assets || !assets.length) return '<div class="p-3">无资源数据</div>';
+
+            const chunkSize = 50; // 每50个Asset为一组
+            let html = '<div class="p-3 bg-light">';
+
+            for (let i = 0; i < assets.length; i += chunkSize) {
+                const chunk = assets.slice(i, i + chunkSize);
+                html += `
+                    <table class="table table-sm table-bordered mb-2">
+                        ${i === 0 ? `
+                        <thead>
+                            <tr>
+                                <th>路径</th>
+                                <th>类型</th>
+                                <th>大小</th>
+                                <th>GUID</th>
+                            </tr>
+                        </thead>
+                        ` : ''}
+                        <tbody>
+                            ${chunk.map(asset => `
+                                <tr>
+                                    <td>${escapeHtml(asset.path)}</td>
+                                    <td>${escapeHtml(asset.type || '-')}</td>
+                                    <td>${formatBytes(asset.size)}</td>
+                                    <td><small>${escapeHtml(asset.guid || '-')}</small></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            html += `</div>`;
+            return html;
+        }
+
+        // HTML转义函数
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+            // 格式化字节大小
+            function formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+
+            // 初始化页面
+            loadGroupData();
+
+            // 绑定筛选器事件
+            $('#groupFilter').change(function() {
+                loadGroupData($(this).val());
+            });
+
+            // 绑定搜索事件
+            $('#searchBtn').click(function() {
+                const searchTerm = $('#bundleSearch').val().toLowerCase();
+                if (!searchTerm) return;
+
+                $('.bundle-item').each(function() {
+                    const $item = $(this);
+                    const bundleName = $item.text().toLowerCase();
+
+                    if (bundleName.includes(searchTerm)) {
+                        $item.addClass('bg-warning');
+                        $item.parent('.group-content').show();
+                        $item.closest('.group-container').find('.group-header').addClass('active');
+                        $item.closest('.group-container').find('.toggle-icon').addClass('rotated');
+                    } else {
+                        $item.removeClass('bg-warning');
+                    }
+                });
+            });
+
+            // 绑定Bundle点击事件
+            $(document).on('click', '.bundle-item', function(e) {
+                e.stopPropagation();
+                $(this).find('.bundle-assets').slideToggle();
+            });
+        });
+    </script>
+</body>
+</html>
