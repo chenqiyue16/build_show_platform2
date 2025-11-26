@@ -13,7 +13,7 @@ from bson import ObjectId
 from .project_setting import *
 
 # MongoDB connection
-client = MongoClient("mongodb://admin:Netease%40164@cloud.leihuo.netease.com:41754/")
+client = MongoClient("mongodb://admin:Netease%40164@10.246.225.48:41754/")
 db = client.local
 fs = gridfs.GridFS(db)
 
