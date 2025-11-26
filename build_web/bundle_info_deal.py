@@ -77,239 +77,127 @@ class BundleInfoDeal(BaseInfoDeal):
         suffix_stats = [{'name': group, 'count': suffix_stats[group]['count'], 'total_size': suffix_stats[group]['total_size']} for group in list(suffix_stats.keys())]
         return all_stats, internal_stats, suffix_stats
 
-    def group_process_bundles_with_details(self, data):
-        """分组处理bundles，同时返回统计信息和详细信息"""
-        print("process bundle info with details")
+    def group_bundles(self, data):
+        """将资源按GroupType分组"""
+        grouped_data = {}
+
+        for bundle in data["Bundles"]:
+            group_type = bundle["GroupType"]
+
+            # 初始化分组数据
+            if group_type not in grouped_data:
+                grouped_data[group_type] = []
+
+            # 添加bundle到对应分组
+            grouped_data[group_type].append(bundle)
+
+        return grouped_data
+
+    def calculate_stats_from_grouped_data(self, grouped_data):
+        """通过分组数据计算统计信息"""
+        print("process bundle info")
 
         # 初始化统计数据结构
-        all_stats = defaultdict(lambda: {"count": 0, "total_size": 0, "paths": list()})
-        internal_stats = defaultdict(lambda: {"count": 0, "total_size": 0, "paths": list()})
-        suffix_stats = defaultdict(lambda: defaultdict(lambda: {"count": 0, "total_size": 0, "paths": list()}))
+        all_stats = defaultdict(lambda: {"count": 0, "total_size": 0})
+        internal_stats = defaultdict(lambda: {"count": 0, "total_size": 0})
+        suffix_stats = defaultdict(lambda: defaultdict(lambda: {"count": 0}))
 
-        # 存储所有bundle的详细信息
-        bundle_details = {
-            "all_bundles": [],
-            "internal_bundles": {"Internal": [], "NonInternal": []},
-            "suffix_bundles": defaultdict(list)
-        }
+        # 处理每个分组
+        for group_type, bundles in grouped_data.items():
+            all_asset_paths = set()
+            internal_asset_paths = set()
+            suffix_asset_paths = defaultdict(set)
 
-        # 处理每个Bundle
-        for bundle in data["Bundles"]:
-            group_type = bundle["GroupType"]
-            is_internal = bundle.get("IsInternal", False)
-            size = bundle["Size"]
-            bundle_name = bundle["FileName"]
+            # 处理每个bundle
+            for bundle in bundles:
+                is_internal = bundle["IsInternal"]
+                size = bundle["Size"]
 
-            # 存储bundle基本信息
-            bundle_info = {
-                "FileName": bundle_name,
-                "Size": size,
-                "AssetCount": len(bundle["Assets"]),
-                "GroupType": group_type,
-                "IsInternal": is_internal
+                # 累加总大小
+                all_stats[group_type]["total_size"] += size
+                if is_internal:
+                    internal_stats[group_type]["total_size"] += size
+
+                # 处理每个资源
+                for asset in bundle["Assets"]:
+                    asset_path = asset["AssetPath"]
+
+                    # 收集所有资源路径（去重）
+                    all_asset_paths.add(asset_path)
+
+                    # 收集内部资源路径（去重）
+                    if is_internal:
+                        internal_asset_paths.add(asset_path)
+
+                    # 按后缀收集资源路径（去重）
+                    suffix = os.path.splitext(asset_path)[1].lower() or "NoExtension"
+                    suffix_asset_paths[suffix].add(asset_path)
+
+            # 更新计数
+            all_stats[group_type]["count"] = len(all_asset_paths)
+            internal_stats[group_type]["count"] = len(internal_asset_paths)
+
+            # 更新后缀统计
+            for suffix, paths in suffix_asset_paths.items():
+                suffix_stats[group_type][suffix]["count"] = len(paths)
+
+        # 转换为列表格式
+        all_stats = [{'name': group, 'count': stats['count'], 'total_size': stats['total_size']}
+                     for group, stats in all_stats.items()]
+
+        internal_stats = [{'name': group, 'count': stats['count'], 'total_size': stats['total_size']}
+                          for group, stats in internal_stats.items()]
+
+        suffix_stats = [{'name': f"{group}_{suffix}", 'count': suffix_stats[group][suffix]['count'], 'total_size': 0}
+                        for group in suffix_stats
+                        for suffix in suffix_stats[group]]
+
+        return all_stats, internal_stats, suffix_stats
+
+    def get_enhanced_group_details(self, data, group_type=None):
+        """增强版分组详情获取方法"""
+        # 使用您现有的group_bundles方法
+        grouped_data = self.group_bundles(data)
+
+        result = []
+        for group_name, bundles in grouped_data.items():
+            # 组筛选
+            if group_type and group_name != group_type:
+                continue
+
+            group_info = {
+                "group_name": group_name,
+                "bundle_count": len(bundles),
+                "total_size": sum(b.get("Size", 0) for b in bundles),
+                "total_assets": sum(len(b.get("Assets", [])) for b in bundles),
+                "bundles": []
             }
 
-            # 添加到所有bundles
-            bundle_details["all_bundles"].append(bundle_info)
+            # 处理每个Bundle
+            for bundle in sorted(bundles, key=lambda x: x.get("Size", 0), reverse=True):
+                bundle_info = {
+                    "file_name": bundle.get("FileName"),
+                    "size": bundle.get("Size", 0),
+                    "is_internal": bundle.get("IsInternal", False),
+                    "asset_count": len(bundle.get("Assets", [])),
+                    "assets": []
+                }
 
-            # 添加到内部/非内部分组
-            if is_internal:
-                bundle_details["internal_bundles"]["Internal"].append(bundle_info)
-            else:
-                bundle_details["internal_bundles"]["NonInternal"].append(bundle_info)
-
-            # 统计信息
-            all_stats[group_type]["total_size"] += size
-            if is_internal:
-                internal_stats[group_type]["total_size"] += size
-
-            # 处理每个资源
-            for asset in bundle["Assets"]:
-                asset_path = asset["AssetPath"]
-
-                # 1. 全部资源统计 (确保唯一)
-                if asset_path not in all_stats[group_type]["paths"]:
-                    all_stats[group_type]["count"] += 1
-                    all_stats[group_type]["paths"].append(asset_path)
-
-                # 2. 仅统计IsInternal资源 (确保唯一)
-                if is_internal:
-                    if asset_path not in internal_stats[group_type]["paths"]:
-                        internal_stats[group_type]["count"] += 1
-                        internal_stats[group_type]["paths"].append(asset_path)
-
-                # 3. 后缀类型统计 (确保唯一)
-                suffix = os.path.splitext(asset_path)[1].lower() or "NoExtension"
-                if asset_path not in suffix_stats[group_type][suffix]["paths"]:
-                    suffix_stats[group_type][suffix]["count"] += 1
-                    suffix_stats[group_type][suffix]["paths"].append(asset_path)
-
-                # 为后缀分组添加bundle信息
-                if bundle_info not in bundle_details["suffix_bundles"][suffix]:
-                    bundle_details["suffix_bundles"][suffix].append(bundle_info)
-
-        # 转换统计结果为列表格式
-        all_stats_list = [
-            {'name': group, 'count': all_stats[group]['count'], 'total_size': all_stats[group]['total_size']} for group
-            in list(all_stats.keys())]
-        internal_stats_list = [
-            {'name': group, 'count': internal_stats[group]['count'], 'total_size': internal_stats[group]['total_size']}
-            for group in list(internal_stats.keys())]
-        suffix_stats_list = []
-
-        for group_type, suffixes in suffix_stats.items():
-            for suffix, stats in suffixes.items():
-                suffix_stats_list.append({
-                    'name': f"{group_type}_{suffix}",
-                    'count': stats['count'],
-                    'total_size': stats['total_size'],
-                    'group_type': group_type,
-                    'suffix': suffix
-                })
-
-        return all_stats_list, internal_stats_list, suffix_stats_list, bundle_details
-
-    def get_bundles_by_group(self, data, group_type, group_name):
-        """根据分组类型和名称获取对应的bundles"""
-        # 如果已经有缓存的分组详情，可以直接使用
-        if hasattr(self, '_cached_bundle_details'):
-            bundle_details = self._cached_bundle_details
-        else:
-            # 否则重新计算分组
-            _, _, _, bundle_details = self.group_process_bundles_with_details(data)
-            self._cached_bundle_details = bundle_details
-
-        if group_type == 'all':
-            return bundle_details["all_bundles"]
-        elif group_type == 'internal':
-            return bundle_details["internal_bundles"].get(group_name, [])
-        elif group_type == 'suffix':
-            return bundle_details["suffix_bundles"].get(group_name, [])
-        else:
-            return []
-
-    def group_process_bundles_new(self, data):
-        """分组处理bundles - 只返回统计信息，性能优化版本"""
-        print("process bundle info - optimized")
-
-        # 使用集合而不是列表来存储路径，提高查找性能
-        all_stats = defaultdict(lambda: {"count": 0, "total_size": 0, "paths": set()})
-        internal_stats = defaultdict(lambda: {"count": 0, "total_size": 0, "paths": set()})
-        suffix_stats = defaultdict(lambda: defaultdict(lambda: {"count": 0, "total_size": 0, "paths": set()}))
-
-        # 处理每个Bundle
-        for bundle in data["Bundles"]:
-            group_type = bundle["GroupType"]
-            is_internal = bundle.get("IsInternal", False)
-            size = bundle["Size"]
-
-            # 统计信息
-            all_stats[group_type]["total_size"] += size
-            if is_internal:
-                internal_stats[group_type]["total_size"] += size
-
-            # 处理每个资源
-            for asset in bundle["Assets"]:
-                asset_path = asset["AssetPath"]
-
-                # 1. 全部资源统计 (使用集合确保唯一)
-                if asset_path not in all_stats[group_type]["paths"]:
-                    all_stats[group_type]["count"] += 1
-                    all_stats[group_type]["paths"].add(asset_path)
-
-                # 2. 仅统计IsInternal资源 (使用集合确保唯一)
-                if is_internal:
-                    if asset_path not in internal_stats[group_type]["paths"]:
-                        internal_stats[group_type]["count"] += 1
-                        internal_stats[group_type]["paths"].add(asset_path)
-
-                # 3. 后缀类型统计 (使用集合确保唯一)
-                suffix = os.path.splitext(asset_path)[1].lower() or "NoExtension"
-                if asset_path not in suffix_stats[group_type][suffix]["paths"]:
-                    suffix_stats[group_type][suffix]["count"] += 1
-                    suffix_stats[group_type][suffix]["paths"].add(asset_path)
-
-        # 转换统计结果为列表格式
-        all_stats_list = [
-            {'name': group, 'count': all_stats[group]['count'], 'total_size': all_stats[group]['total_size']}
-            for group in list(all_stats.keys())
-        ]
-        internal_stats_list = [
-            {'name': group, 'count': internal_stats[group]['count'], 'total_size': internal_stats[group]['total_size']}
-            for group in list(internal_stats.keys())
-        ]
-        suffix_stats_list = []
-
-        for group_type, suffixes in suffix_stats.items():
-            for suffix, stats in suffixes.items():
-                suffix_stats_list.append({
-                    'name': f"{group_type}_{suffix}",
-                    'count': stats['count'],
-                    'total_size': stats['total_size'],
-                    'group_type': group_type,
-                    'suffix': suffix
-                })
-
-        return all_stats_list, internal_stats_list, suffix_stats_list
-
-    def get_bundle_group_details(self, data, group_type, group_name):
-        """获取特定分组的bundle详情 - 按需加载，提高性能"""
-        bundles = data.get("Bundles", [])
-        result = []
-
-        if group_type == 'all':
-            # 返回所有bundles的基本信息
-            for bundle in bundles:
-                result.append({
-                    "FileName": bundle.get("FileName"),
-                    "Size": bundle.get("Size"),
-                    "AssetCount": len(bundle.get("Assets", [])),
-                    "GroupType": bundle.get("GroupType"),
-                    "IsInternal": bundle.get("IsInternal", False)
-                })
-
-        elif group_type == 'internal':
-            # 内部资源分组
-            is_internal_flag = (group_name == "Internal")
-            for bundle in bundles:
-                is_internal = bundle.get("IsInternal", False)
-                if is_internal == is_internal_flag:
-                    result.append({
-                        "FileName": bundle.get("FileName"),
-                        "Size": bundle.get("Size"),
-                        "AssetCount": len(bundle.get("Assets", [])),
-                        "GroupType": bundle.get("GroupType"),
-                        "IsInternal": is_internal
+                # 处理每个Asset
+                for asset in bundle.get("Assets", []):
+                    bundle_info["assets"].append({
+                        "path": asset.get("AssetPath"),
+                        "size": asset.get("Size", 0)
+                        # 添加其他需要的资产字段
                     })
 
-        elif group_type == 'suffix':
-            # 后缀名分组
-            for bundle in bundles:
-                assets = bundle.get("Assets", [])
-                if not assets:
-                    continue
+                group_info["bundles"].append(bundle_info)
 
-                # 计算该bundle中主要后缀
-                suffix_count = {}
-                for asset in assets:
-                    asset_path = asset.get("AssetPath", "")
-                    suffix = os.path.splitext(asset_path)[1].lower() or "NoExtension"
-                    suffix_count[suffix] = suffix_count.get(suffix, 0) + 1
+            result.append(group_info)
 
-                if suffix_count:
-                    main_suffix = max(suffix_count, key=suffix_count.get)
-                    if main_suffix == group_name:
-                        result.append({
-                            "FileName": bundle.get("FileName"),
-                            "Size": bundle.get("Size"),
-                            "AssetCount": len(assets),
-                            "GroupType": bundle.get("GroupType"),
-                            "IsInternal": bundle.get("IsInternal", False),
-                            "MainSuffix": main_suffix,
-                            "SuffixDistribution": suffix_count
-                        })
+        # 按组名排序
+        return sorted(result, key=lambda x: x["group_name"])
 
-        return result
     # def groups_distribution_size_data(self, data):
     #     """Calculate size distribution for bundles"""
     #     BOUNDARIES = [1000, 2000, 5000, 10000, 20000]

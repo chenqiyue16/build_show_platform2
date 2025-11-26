@@ -69,8 +69,14 @@ def get_bundle_group_bundles_size_and_count():
         bundle_deal = BundleInfoDeal()
 
         # 只获取统计信息，不获取详细信息
-        all_stats, internal_stats, suffix_stats = bundle_deal.group_process_bundles_new(data)
-
+        # all_stats, internal_stats, suffix_stats = bundle_deal.group_process_bundles_new(data)
+        all_stats, internal_stats, suffix_stats = bundle_deal.calculate_stats_from_grouped_data(bundle_deal.group_bundles(data))
+        print({
+            "status": "success",
+            "all_stats": all_stats,
+            "internal_stats": internal_stats,
+            "suffix_stats": suffix_stats
+        })
         return jsonify({
             "status": "success",
             "all_stats": all_stats,
@@ -86,33 +92,36 @@ def get_bundle_group_bundles_size_and_count():
         }), 500
 
 
-@BuildWeb_blueprint.route('get_bundles_by_group')
-def get_bundles_by_group():
-    """Get bundles filtered by group type and name - 按需加载详情"""
+@BuildWeb_blueprint.route('bundle_group_details/<info_id>')
+def bundle_group_details(info_id):
+    """Bundle分组详情页面"""
+    response = make_response(render_template('bundle_info_group_detail.html', info_id=info_id))
+    response.cache_control.max_age = 300  # 5 minutes cache
+    return response
+
+@BuildWeb_blueprint.route('get_grouped_bundle_details')
+def get_enhanced_group_details():
+    """获取增强版分组详情"""
     info_id = request.args.get('info_id', 'l22_Android_Debug_202505191642')
-    group_type = request.args.get('group_type')  # 'all', 'internal', 'suffix'
-    group_name = request.args.get('group_name')  # e.g., 'Group1', 'Internal', '.png'
+    group_type = request.args.get('group_type')
 
     try:
-        # 使用缓存的数据
         data = get_cached_bundle_detail(info_id)
         bundle_deal = BundleInfoDeal()
-        # 按需获取特定分组的bundle列表
-        filtered_bundles = bundle_deal.get_bundle_group_details(data, group_type, group_name)
-
+        details = bundle_deal.get_enhanced_group_details(data, group_type)
+        print({
+            "status": "success",
+            "data": details
+        })
         return jsonify({
             "status": "success",
-            "group_type": group_type,
-            "group_name": group_name,
-            "bundles": filtered_bundles,
-            "count": len(filtered_bundles)
+            "data": details
         })
 
     except Exception as e:
-        print(f"Error getting bundles by group: {str(e)}")
         return jsonify({
             "status": "error",
-            "message": str(e)
+            "message": f"获取详情失败: {str(e)}"
         }), 500
 
 # @BuildWeb_blueprint.route('get_distribution_data')
